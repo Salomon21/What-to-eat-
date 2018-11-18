@@ -1,0 +1,130 @@
+%Knowledge Base
+recipe('cereal',
+      ['milk','cereal']).
+
+recipe('ham sandwich',
+       ['bread','ham','mayonnaise']).
+
+recipe('chicken sandwich',
+       ['bread','chicken','mayonnaise']).
+
+recipe('hot cakes',
+       ['flour','milk','egg']).
+
+recipe('simple omelette',
+       ['egg','pepper']).
+
+recipe('mushroom omelette',
+       ['egg','mushroom','pepper','salt']).
+
+recipe('ham omelette',
+       ['egg','ham','pepper']).
+
+recipe('fried beans',
+       ['beans','water']).
+
+recipe('fried bananas',
+       ['bananas','cream','cheese']).
+
+recipe('cheese sandwich',
+       ['bread','cheese']).
+
+recipe('lemon tea',
+       ['water','lemon']).
+
+recipe('red chilaquiles',
+       ['tortilla','tomato','cream','cheese']).
+
+recipe('chilaquiles with chicken',
+       ['tortilla','tomato','cream','cheese','chicken']).
+
+recipe('orange juice',
+       ['water','orange','sugar']).
+
+
+%Methods
+ingredient_in_recipe(Ingredient,Recipe):-
+    recipe(Recipe, Recipelist),
+    member(Ingredient, Recipelist).
+
+find_recipe([],_):-
+    false,
+    !.
+
+find_recipe([Ingredient|Tail], Result):-
+    ingredient_in_recipe(Ingredient, Result);
+    find_recipe(Tail, Result).
+
+get_all_recipes([],_):-
+    write('No ingredients received.').
+
+get_all_recipes(Ingredients, Result):-
+    findall(X, find_recipe(Ingredients, X), Allrecipes),
+    eliminate_duplicates(Allrecipes, Result),
+    writeln('What to Eat?  Copyright (C) 2018  Salomón Olivera'),
+    writeln('This program comes with ABSOLUTELY NO WARRANTY; for details type:show_w.'),
+    writeln('This is free software, and you are welcome to redistribute it'),
+    writeln('  '),
+    format("|~`-t~88|~n"),
+    format("|~t~a~t~90+|~t~a~t~10+~n",
+         ['Recipe','Status']),
+    format("|~`-t~88|~n"),
+    print_table(Result,Ingredients).
+
+
+eliminate([],Y,Y).
+
+eliminate([H|T],Y,X):-
+  member(H,Y),
+  eliminate(T,Y,X).
+
+eliminate([H|T],Y,X):-
+  eliminate(T,[H|Y],X).
+
+eliminate_duplicates(L,X):-
+  eliminate(L,[],X).
+
+print_table([],_).
+print_table([Recipe|T],Ingredients):-
+    recipe(Recipe,RecipeIngredients),
+    status(RecipeIngredients,Ingredients,Status),
+    write(RecipeIngredients),
+    format("~t~a~t~70+|~t~a~t~30+|~n",
+           [Recipe,Status]),
+    format("|~`-t~88|~n"),
+    print_table(T,Ingredients).
+
+incomplete([],[],incomplete).
+
+status(RecipeIngredients,Ingredients,Result):-
+    sort(0, @<, RecipeIngredients, SortIn),
+    sort(0, @<, Ingredients, SortInL),
+    stat(SortIn,SortInL,Result).
+
+stat([],_,complete).
+stat(_,[],incomplete).
+stat(Ingredients,Ingredients,complete).
+stat([H1|T],Ingredients,Result):-
+    member(H1,Ingredients),
+    stat(T,Ingredients,Result).
+
+stat([H1|_],Ingredients,Result):-
+    \+ member(H1,Ingredients),
+    incomplete([],[],Result).
+
+
+show_w():-
+    writeln('What to Eat? Is a program that gives you recipes depending on your ingredients.'),
+    writeln('Copyright (C) 2018  Salomon Olivera Abud'),
+    writeln('  '),
+    writeln('This program is free software: you can redistribute it and/or modify'),
+    writeln('it under the terms of the GNU General Public License as published by'),
+    writeln('the Free Software Foundation, either version 3 of the License, or any later version.'),
+    writeln('  '),
+    writeln('This program is distributed in the hope that it will be useful,'),
+    writeln('but WITHOUT ANY WARRANTY; without even the implied warranty of'),
+    writeln('MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the'),
+    writeln('GNU General Public License for more details'),
+    writeln('  '),
+    writeln('You should have received a copy of the GNU General Public License'),
+    writeln('along with this program.  If not, see <https://www.gnu.org/licenses/>').
